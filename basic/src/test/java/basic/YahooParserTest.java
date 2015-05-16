@@ -3,20 +3,20 @@ package basic;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
 import org.junit.Test;
 
 import domain.csv.DataWrapper;
-import edu.emory.mathcs.backport.java.util.Arrays;
 import parser.YahooParser;
 
 public class YahooParserTest {
 
 	@Test
 	public final void simpleTest() {
-		assertTrue(YahooParser.getDataWrapper("INTC").getTicker().equalsIgnoreCase("INTC"));
+		assertTrue(YahooParser.getDataWrapperFn("INTC").getTicker().equalsIgnoreCase("INTC"));
 	}
 	
 	@Test
@@ -35,7 +35,7 @@ public class YahooParserTest {
 	}
 
 	private void nonNull(String tickerSymbol) {
-		final DataWrapper testWrap = YahooParser.getDataWrapper(tickerSymbol);
+		final DataWrapper testWrap = YahooParser.getDataWrapperFn(tickerSymbol);
 		assertTrue(testWrap!=null);
 		assertTrue(testWrap.getRecords().keySet().size()>0);
 		testWrap.getRecords().keySet().parallelStream().forEach(((t)-> {
@@ -44,13 +44,12 @@ public class YahooParserTest {
 	}
 	
 	private void nonNullSet(List<String> tickerSymbol) {
-		ConcurrentMap<String, DataWrapper> map = YahooParser.getDataWrapperMap(tickerSymbol);
+		ConcurrentMap<String, DataWrapper> map = YahooParser.getDataWrapperMapFn(tickerSymbol);
 		assertTrue(map.keySet().size() == tickerSymbol.size());
 		map.keySet().parallelStream().forEach((k) -> assertTrue(map.get(k).getRecords().keySet().size()>0));
 		map.keySet().parallelStream().forEach((k)-> {
 			map.get(k).getRecords().keySet().parallelStream().forEach(((t)-> {
 				assertTrue(map.get(k).getRecords().get(t)!=null);
-				//System.out.println(map.get(k).getRecords().get(t).getHigh());
 			}));
 		});
 	}
