@@ -1,5 +1,6 @@
 package domain.csv;
 
+import java.util.Optional;
 import java.util.concurrent.ConcurrentMap;
 
 public class DataWrapper {
@@ -61,4 +62,28 @@ public class DataWrapper {
 	}
 	private String exchangeName;
 	private ConcurrentMap<Long,DataRecord> records; //keyed by timestamp
+	
+	
+	
+	
+	/**
+	 * SMA Map
+	 * 
+	 * Outer map is Timestamp to SMA Values
+	 * Inner Map is #of previous periods being considered
+	 * 
+	 * Warning: If the # of previous periods used in the calculation is not 
+	 * 	available in the map (such as 10 periods for the first time point of the day, the value will return null)
+	 * 
+	 * 
+	 */
+	private Optional<ConcurrentMap<Long,ConcurrentMap<Integer,Double>>> sMACrossover;
+	
+	public Optional<ConcurrentMap<Long,ConcurrentMap<Integer,Double>>> getsMACrossover() {
+		return sMACrossover;
+	}
+
+	public void setsMACrossover(Optional<ConcurrentMap<Long,ConcurrentMap<Integer,Double>>> sMACrossover) {
+		this.sMACrossover = sMACrossover;
+	}
 }
