@@ -97,7 +97,7 @@ public class YahooParser {
 		rawInput = rawInput.subList(RECORD_START, rawInput.size()-1);
 		ConcurrentMap<Long, DataRecord> map = new ConcurrentHashMap<>();
 		
-		rawInput.stream().sequential().forEach((i)->{
+		rawInput.parallelStream().forEach((i)->{
 			if(i.length()>10){
 				String[] split = i.split(",");
 				try{
@@ -118,5 +118,13 @@ public class YahooParser {
 	
 	public static DataWrapper getDataWrapper(String tickerSymbol){
 		return YahooParser.getData(YahooParser.splitViaLineList(YahooParser.getIntraDaily(tickerSymbol)));
+	}
+	
+	public static ConcurrentMap<String, DataWrapper> getDataWrapperMap(List<String> tickerSymbol){
+		ConcurrentMap<String, DataWrapper> resultMap = new ConcurrentHashMap<>();
+		tickerSymbol.parallelStream().forEach((t)->{
+			resultMap.put(t, getDataWrapper(t));
+		});
+		return resultMap;
 	}
 }
