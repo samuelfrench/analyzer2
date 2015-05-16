@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.nio.CharBuffer;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -21,7 +22,6 @@ import org.apache.http.impl.client.HttpClients;
 
 import domain.csv.DataRecord;
 import domain.csv.DataWrapper;
-import edu.emory.mathcs.backport.java.util.Arrays;
 
 public class YahooParser {
 	private static final String[] dailyQuery = {"http://chartapi.finance.yahoo.com/instrument/1.0/","/chartdata;type=quote;range=1d/csv"};
@@ -74,7 +74,6 @@ public class YahooParser {
 		return s.split("\n");
 	}
 	
-	@SuppressWarnings("unchecked")
 	public static List<String> splitViaLineList(String s){
 		return (List<String>) Arrays.asList(splitViaLine(s)).stream().filter((p)-> ((String)p).length() > 1).collect(Collectors.toList());
 	}
