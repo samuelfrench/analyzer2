@@ -16,10 +16,18 @@ public class YahooParserTest {
 	
 	@Test
 	public final void nonNullTest(){
-		final DataWrapper testWrap = YahooParser.getDataWrapper("AMZN");
+		for(int x = 0; x < 10; x++){
+			nonNull("AMZN");
+			nonNull("V");
+			nonNull("SLV");
+		}
+	}
+
+	private void nonNull(String tickerSymbol) {
+		final DataWrapper testWrap = YahooParser.getDataWrapper(tickerSymbol);
 		assertTrue(testWrap!=null);
 		assertTrue(testWrap.getRecords().keySet().size()>0);
-		testWrap.getRecords().keySet().stream().forEachOrdered(((t)-> {
+		testWrap.getRecords().keySet().parallelStream().forEach(((t)-> {
 			assertTrue(testWrap.getRecords().get(t)!=null);
 		}));
 	}

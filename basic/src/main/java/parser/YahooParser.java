@@ -1,9 +1,7 @@
 package parser;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.CharBuffer;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Arrays;
@@ -37,17 +35,18 @@ public class YahooParser {
 		CloseableHttpClient httpclient = HttpClients.createDefault();
 		String query = getDailyURI(ticker);
   	  	HttpGet httpget = new HttpGet(query);
-  	  	System.out.println("executing request " + httpget.getRequestLine());
+  	  	//System.out.println("executing request " + httpget.getRequestLine());
   	  	CloseableHttpResponse response;
   	  InputStreamReader reader = null;
   	  	try {
 			response = httpclient.execute(httpget);
+			//System.out.println(response.getStatusLine());
 			HttpEntity resEntity = response.getEntity();
 			
 			if (resEntity != null) {
-                System.out.println("Response content length: " + resEntity.getContentLength());
+                //System.out.println("Response content length: " + resEntity.getContentLength());
                 reader = new InputStreamReader(resEntity.getContent());
-                char[] buff = new char[4096];
+                char[] buff = new char[8];
                 StringBuffer strBuffer = new StringBuffer();
                 while(reader.read(buff)!=-1){
                 	strBuffer.append(buff);
@@ -98,7 +97,7 @@ public class YahooParser {
 		rawInput = rawInput.subList(RECORD_START, rawInput.size()-1);
 		ConcurrentMap<Long, DataRecord> map = new ConcurrentHashMap<>();
 		
-		rawInput.stream().forEach((i)->{
+		rawInput.stream().sequential().forEach((i)->{
 			if(i.length()>10){
 				String[] split = i.split(",");
 				try{
@@ -118,10 +117,6 @@ public class YahooParser {
 	}
 	
 	public static DataWrapper getDataWrapper(String tickerSymbol){
-		String dws = null;
-		while(dws == null || dws.length() < 100){
-			while((dws = YahooParser.getIntraDaily(tickerSymbol))==null);	
-		}
-		return YahooParser.getData(YahooParser.splitViaLineList(dws));
+		return YahooParser.getData(YahooParser.splitViaLineList(YahooParser.getIntraDaily(tickerSymbol)));
 	}
 }
