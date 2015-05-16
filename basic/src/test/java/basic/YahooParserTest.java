@@ -10,15 +10,18 @@ import parser.YahooParser;
 public class YahooParserTest {
 
 	@Test
-	public final void test() {
-		for(int x = 0; x < 100; x++){
-			//System.out.println(x + ": " + YahooParser.splitViaLine(YahooParser.getIntraDaily("AMZN"))[x]);
-		}
-		//System.out.println(YahooParser.splitViaLine(YahooParser.getIntraDaily("INTC"))[9]);
-		//System.out.println(YahooParser.getFormattedDate(1431720000L));
-		String fullText = YahooParser.getIntraDaily("AMZN");
-		DataWrapper dw = YahooParser.getData(YahooParser.splitViaLineList(fullText));
-		dw.getRecords().keySet().forEach((p)->System.out.println(p));
+	public final void simpleTest() {
+		assertTrue(YahooParser.getDataWrapper("INTC").getTicker().equalsIgnoreCase("INTC"));
+	}
+	
+	@Test
+	public final void nonNullTest(){
+		final DataWrapper testWrap = YahooParser.getDataWrapper("AMZN");
+		assertTrue(testWrap!=null);
+		assertTrue(testWrap.getRecords().keySet().size()>0);
+		testWrap.getRecords().keySet().stream().forEachOrdered(((t)-> {
+			assertTrue(testWrap.getRecords().get(t)!=null);
+		}));
 	}
 
 }

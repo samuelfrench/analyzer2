@@ -33,7 +33,7 @@ public class YahooParser {
 		return sb.toString();
 	}
 	
-	public static String getIntraDaily(String ticker){
+	private static String getIntraDaily(String ticker){
 		CloseableHttpClient httpclient = HttpClients.createDefault();
 		String query = getDailyURI(ticker);
   	  	HttpGet httpget = new HttpGet(query);
@@ -70,11 +70,11 @@ public class YahooParser {
 	}
 	
 	
-	public static String[] splitViaLine(String s){
+	private static String[] splitViaLine(String s){
 		return s.split("\n");
 	}
 	
-	public static List<String> splitViaLineList(String s){
+	private static List<String> splitViaLineList(String s){
 		return (List<String>) Arrays.asList(splitViaLine(s)).stream().filter((p)-> ((String)p).length() > 1).collect(Collectors.toList());
 	}
 	
@@ -88,7 +88,7 @@ public class YahooParser {
 	
 	final static int RECORD_START = 17;
 	
-	public static DataWrapper getData(List<String> rawInput){
+	private static DataWrapper getData(List<String> rawInput){
 		DataWrapper wrap = new DataWrapper();
 		wrap.setTicker(rawInput.get(1).split(":")[1]);
 		wrap.setExchangeName(rawInput.get(3).split(":")[1]);
@@ -101,14 +101,27 @@ public class YahooParser {
 		rawInput.stream().forEach((i)->{
 			if(i.length()>10){
 				String[] split = i.split(",");
-				DataRecord record = new DataRecord(Long.parseLong(split[0],10),Double.parseDouble(split[1]),
-						Double.parseDouble(split[2]),Double.parseDouble(split[3]),Double.parseDouble(split[4]),
-						Long.parseLong(split[5],10));
-				map.put(Long.parseLong(split[0],10), record);
+				try{
+					DataRecord record = new DataRecord(Long.parseLong(split[0],10),Double.parseDouble(split[1]),
+							Double.parseDouble(split[2]),Double.parseDouble(split[3]),Double.parseDouble(split[4]),
+							Long.parseLong(split[5],10));
+					map.put(Long.parseLong(split[0],10), record);
+				} catch (NumberFormatException e){
+					e.printStackTrace();
+					return;
+				}
 			}
 		});
 		wrap.setRecords(map);
 		
 		return wrap;
+	}
+	
+	public static DataWrapper getDataWrapper(String tickerSymbol){
+		String dws = null;
+		while(dws == null || dws.length() < 100){
+			while((dws = YahooParser.getIntraDaily(tickerSymbol))==null);	
+		}
+		return YahooParser.getData(YahooParser.splitViaLineList(dws));
 	}
 }
