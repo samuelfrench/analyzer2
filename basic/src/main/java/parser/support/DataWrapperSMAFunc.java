@@ -83,20 +83,6 @@ public class DataWrapperSMAFunc {
 		}
 	}
 
-	/*
-	 * Probably not going to need to do this - see whiteboard_capture_001.png for better idea
-	 */
-	@Deprecated
-	private static ConcurrentMap<Long, Long> getPreviousPeriodCountMap(
-			final ConcurrentMap<Long, ConcurrentMap<Long, Double>> SMAMatrix) {
-		ConcurrentMap<Long, Long> previousPeriodCount = new ConcurrentHashMap<>();
-		SMAMatrix.keySet().parallelStream().forEach(
-				(k) -> 
-					previousPeriodCount.put(k, 
-							previousPeriodCount.keySet().parallelStream().filter((p)->(p<k)).count()));
-		return previousPeriodCount;
-	}
-
 	private static ConcurrentMap<Long, Double> getHighLowDiff(DataWrapper dataWrapper) {
 		//we will use this as one of our simple moving average points
 		ConcurrentMap<Long, Double> highLowDiff = new ConcurrentHashMap<>();
@@ -132,13 +118,4 @@ public class DataWrapperSMAFunc {
 		});
 		return upwardMovement;
 	}
-	
-	
-	
-	/*
-	 * OptionalDouble 	average()
-Returns an OptionalDouble describing the arithmetic mean of elements of this stream, or an empty optional if this stream is empty.
-	 */
-	
-	//write function to return optional
 }
