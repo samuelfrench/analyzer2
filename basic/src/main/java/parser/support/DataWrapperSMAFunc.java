@@ -83,7 +83,7 @@ public class DataWrapperSMAFunc {
 		}
 	}
 
-	private static ConcurrentMap<Long, Double> getHighLowDiff(DataWrapper dataWrapper) {
+	public static ConcurrentMap<Long, Double> getHighLowDiff(DataWrapper dataWrapper) {
 		//we will use this as one of our simple moving average points
 		ConcurrentMap<Long, Double> highLowDiff = new ConcurrentHashMap<>();
 		dataWrapper.getRecords().values().parallelStream().forEach((r)-> {
@@ -95,7 +95,7 @@ public class DataWrapperSMAFunc {
 	}
 
 	@SuppressWarnings("unused")
-	private static void getCloseOpenDiff(DataWrapper dataWrapper) {
+	public static void getCloseOpenDiff(DataWrapper dataWrapper) {
 		ConcurrentMap<Long,Double> closeOpenDiff = new ConcurrentHashMap<>();
 		dataWrapper.getRecords().values().parallelStream().forEach((r)-> {
 			if(closeOpenDiff.put(r.getTimestamp(), r.getClose() - r.getOpen())!=null){
@@ -105,7 +105,7 @@ public class DataWrapperSMAFunc {
 	}
 
 	@SuppressWarnings("unused")
-	private static ConcurrentMap<Long, Boolean> getUpwardMovement(
+	public static ConcurrentMap<Long, Boolean> getUpwardMovement(
 			ConcurrentMap<Long, Double> closeOpenDiff) {
 		
 		ConcurrentMap<Long, Boolean> upwardMovement = new ConcurrentHashMap<>();

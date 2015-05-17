@@ -2,13 +2,17 @@ package basic;
 
 import static org.junit.Assert.*;
 
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
+
 import org.junit.Test;
 
+
+import domain.csv.DataRecord;
 import domain.csv.DataWrapper;
 import parser.YahooParser;
 
@@ -32,6 +36,26 @@ public class YahooParserTest {
 		List<String> testList = new ArrayList<>();
 		testList.addAll(Arrays.asList(new String[]{"INTC", "AMD", "AMZN", "ARMH", "SLV", "V", "BABA"}));
 		nonNullSet(testList);
+	}
+	
+	@Test
+	public final void nonDuplicateTest(){
+		List<String> testList = new ArrayList<>();
+		testList.addAll(Arrays.asList(new String[]{"INTC", "AMD", "AMZN", "ARMH", "SLV", "V", "BABA"}));
+		ConcurrentMap<String, DataWrapper> maps = YahooParser.getDataWrapperMapFn(testList);
+		if(maps.values().parallelStream().distinct().count()!=testList.size()){
+			fail("wrong result size");
+		}
+		maps.values().parallelStream().forEach((d)->{
+			assertEquals(
+					
+					d.getRecords().values().parallelStream().mapToDouble(DataRecord::getTimestamp).distinct().count(),
+					
+					d.getRecords().keySet().parallelStream().count());
+			
+			assertTrue(d.getRecords().keySet().parallelStream().count()>0);
+			
+		});
 	}
 
 	private void nonNull(String tickerSymbol) {
