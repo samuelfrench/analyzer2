@@ -15,7 +15,7 @@ public class DataWrapperSMAFunc {
 		}
 		long recordCount = dataWrapper.getRecords().keySet().stream().count();
 		if(recordCount < 1){
-			System.err.println("");
+			System.err.println("no records");
 			return;
 		}
 		
@@ -23,6 +23,36 @@ public class DataWrapperSMAFunc {
 			System.out.println("addSMARangeData: overWriting existing values");
 		}
 		
+		getHighLowDiff(dataWrapper);
+		
+		//getCloseOpenDiff(dataWrapper);
+		
+		
+		ConcurrentMap<Long, ConcurrentMap<Long, Double>> SMAMatrix = 
+				new ConcurrentHashMap<Long, ConcurrentMap<Long, Double>>();
+		dataWrapper.getRecords().keySet().parallelStream().forEach((k)-> {
+			SMAMatrix.put(k, new ConcurrentHashMap<>());
+		});
+		
+		
+		
+	}
+
+	/*
+	 * Probably not going to need to do this - see whiteboard_capture_001.png for better idea
+	 */
+	@Deprecated
+	private static ConcurrentMap<Long, Long> getPreviousPeriodCountMap(
+			final ConcurrentMap<Long, ConcurrentMap<Long, Double>> SMAMatrix) {
+		ConcurrentMap<Long, Long> previousPeriodCount = new ConcurrentHashMap<>();
+		SMAMatrix.keySet().parallelStream().forEach(
+				(k) -> 
+					previousPeriodCount.put(k, 
+							previousPeriodCount.keySet().parallelStream().filter((p)->(p<k)).count()));
+		return previousPeriodCount;
+	}
+
+	private static void getHighLowDiff(DataWrapper dataWrapper) {
 		//we will use this as one of our simple moving average points
 		ConcurrentMap<Long, Double> highLowDiff = new ConcurrentHashMap<>();
 		dataWrapper.getRecords().values().parallelStream().forEach((r)-> {
@@ -30,24 +60,19 @@ public class DataWrapperSMAFunc {
 				System.err.println("err");
 			};
 		});
-		
+	}
+
+	@SuppressWarnings("unused")
+	private static void getCloseOpenDiff(DataWrapper dataWrapper) {
 		ConcurrentMap<Long,Double> closeOpenDiff = new ConcurrentHashMap<>();
 		dataWrapper.getRecords().values().parallelStream().forEach((r)-> {
 			if(closeOpenDiff.put(r.getTimestamp(), r.getClose() - r.getOpen())!=null){
 				System.err.println("err");
 			}
 		});
-		
-		getUpwardMovement(dataWrapper, closeOpenDiff);
-		
-		/*
-		ConcurrentMap<Long, ConcurrentMap<Long, Double>> SMAMatrix = 
-				new ConcurrentHashMap<Long, ConcurrentMap<Long, Double>>();
-		*/
-		
-		
 	}
 
+	@SuppressWarnings("unused")
 	private static ConcurrentMap<Long, Boolean> getUpwardMovement(
 			ConcurrentMap<Long, Double> closeOpenDiff) {
 		
