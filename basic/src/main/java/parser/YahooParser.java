@@ -22,6 +22,42 @@ import domain.csv.DataRecord;
 import domain.csv.DataWrapper;
 
 public class YahooParser implements QueryService {
+
+	/*
+	 * Public
+	 */
+	public static DataWrapper getDataWrapperFn(String tickerSymbol){
+		return YahooParser.getData(YahooParser.splitViaLineList(YahooParser.getIntraDaily(tickerSymbol)));
+	}
+	
+	public static ConcurrentMap<String, DataWrapper> getDataWrapperMapFn(List<String> tickerSymbol){
+		ConcurrentMap<String, DataWrapper> resultMap = new ConcurrentHashMap<>();
+		tickerSymbol.parallelStream().forEach((t)->{
+			resultMap.put(t, getDataWrapperFn(t));
+		});
+		return resultMap;
+	}
+
+	@Override
+	public DataWrapper getDataWrapper(final String tickerSymbol) {
+		return getDataWrapperFn(tickerSymbol);
+	}
+
+	@Override
+	public ConcurrentMap<String, DataWrapper> getDataWrapperMap(
+			final List<String> tickerSymbol) {
+		return getDataWrapperMapFn(tickerSymbol);
+	}
+	
+	
+	
+	
+	
+	
+	/*
+	 * Private Helpers
+	 */
+	
 	private static final String[] dailyQuery = {"http://chartapi.finance.yahoo.com/instrument/1.0/","/chartdata;type=quote;range=1d/csv"};
 
 	private static String getDailyURI(String ticker){
@@ -114,28 +150,5 @@ public class YahooParser implements QueryService {
 		wrap.setRecords(map);
 		
 		return wrap;
-	}
-	
-	public static DataWrapper getDataWrapperFn(String tickerSymbol){
-		return YahooParser.getData(YahooParser.splitViaLineList(YahooParser.getIntraDaily(tickerSymbol)));
-	}
-	
-	public static ConcurrentMap<String, DataWrapper> getDataWrapperMapFn(List<String> tickerSymbol){
-		ConcurrentMap<String, DataWrapper> resultMap = new ConcurrentHashMap<>();
-		tickerSymbol.parallelStream().forEach((t)->{
-			resultMap.put(t, getDataWrapperFn(t));
-		});
-		return resultMap;
-	}
-
-	@Override
-	public DataWrapper getDataWrapper(final String tickerSymbol) {
-		return getDataWrapperFn(tickerSymbol);
-	}
-
-	@Override
-	public ConcurrentMap<String, DataWrapper> getDataWrapperMap(
-			final List<String> tickerSymbol) {
-		return getDataWrapperMapFn(tickerSymbol);
 	}
 }

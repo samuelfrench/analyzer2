@@ -25,10 +25,6 @@ public class DataWrapperSMAFunc {
 			return;
 		}
 		
-		if(printDebug && dataWrapper.getsMAMatrix().isPresent()){
-			System.out.println("addSMARangeData: overWriting existing values");
-		}
-		
 		
 		/*
 		 * CREATE OBJECT TO POPULATE

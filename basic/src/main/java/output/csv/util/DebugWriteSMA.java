@@ -15,7 +15,7 @@ import domain.csv.DataWrapper;
 public class DebugWriteSMA {
 	//true = error
 	//false = success
-	public  static boolean writeSMAMatrixToFile(final DataWrapper dataWrapper, final String fileName, boolean overWriteIfExist){
+	public static boolean writeSMAMatrixToFile(final DataWrapper dataWrapper, final String fileName){
 		if(!dataWrapper.getsMAMatrix().isPresent()){
 			return true;
 		}
@@ -28,8 +28,7 @@ public class DebugWriteSMA {
 		try{
 			fileWriter = new FileWriter(fileName);
 			final CSVPrinter csvFilePrinter = new CSVPrinter(fileWriter, format);
-			tsLine.keySet().stream().sorted().sequential().forEachOrdered((t)->
-			{
+			tsLine.keySet().stream().sorted().sequential().forEachOrdered((t)-> {
 				StringBuilder sb = new StringBuilder("ts: ");
 				sb.append(t.toString());
 				ConcurrentMap<Long,Optional<Double>> mapForTs = smaMatrix.get(t);

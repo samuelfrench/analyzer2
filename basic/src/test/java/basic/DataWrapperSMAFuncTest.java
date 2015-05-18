@@ -2,20 +2,20 @@ package basic;
 
 import static org.junit.Assert.*;
 
+import java.util.List;
+import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import domain.csv.DataWrapper;
+import parser.YahooParser;
+import parser.support.DataWrapperSMAFunc;
+
 public class DataWrapperSMAFuncTest {
-
-	@Before
-	public void setUp() throws Exception {
-	}
-
-	@After
-	public void tearDown() throws Exception {
-	}
-
+	
 	@Test
 	public final void testAddSMARangeData() {
 		fail("Not yet implemented"); // TODO
@@ -23,7 +23,15 @@ public class DataWrapperSMAFuncTest {
 
 	@Test
 	public final void testGetHighLowDiff() {
-		fail("Not yet implemented"); // TODO
+		DataWrapper dataWrapper = YahooParser.getDataWrapperFn("AMZN");
+		List<Long> ts = dataWrapper.getRecords().keySet().stream().sorted().collect(Collectors.toList());
+		final ConcurrentMap<Long, Double> resultMap = DataWrapperSMAFunc.getHighLowDiff(dataWrapper);
+		if(ts.size() != resultMap.keySet().size()){
+			fail("Incorrect result size");
+		}
+		resultMap.keySet().stream().sorted().distinct().forEach((k)->{
+			System.out.println("k: " + k + ", v: " + resultMap.get(k));
+		});
 	}
 
 	@Test
