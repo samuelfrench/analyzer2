@@ -77,13 +77,13 @@ public class DataWrapper {
 	 * 
 	 * 
 	 */
-	private Optional<ConcurrentMap<Long, ConcurrentMap<Long, Double>>> sMACrossover;
+	private Optional<ConcurrentMap<Long, ConcurrentMap<Long, Optional<Double>>>> sMAMatrix;
 	
-	public Optional<ConcurrentMap<Long, ConcurrentMap<Long, Double>>> getsMACrossover() {
-		return sMACrossover;
+	public Optional<ConcurrentMap<Long, ConcurrentMap<Long, Optional<Double>>>> getsMAMatrix() {
+		return sMAMatrix;
 	}
 
-	public void setsMACrossover(Optional<ConcurrentMap<Long, ConcurrentMap<Long, Double>>> optional) {
-		this.sMACrossover = optional;
+	public void setsMAMatrix(Optional<ConcurrentMap<Long, ConcurrentMap<Long, Optional<Double>>>> sMAMatrix) {
+		this.sMAMatrix = sMAMatrix;
 	}
 }

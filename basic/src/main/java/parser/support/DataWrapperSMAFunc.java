@@ -25,14 +25,16 @@ public class DataWrapperSMAFunc {
 			return;
 		}
 		
-		if(printDebug && dataWrapper.getsMACrossover().isPresent()){
+		if(printDebug && dataWrapper.getsMAMatrix().isPresent()){
 			System.out.println("addSMARangeData: overWriting existing values");
 		}
 		
-		//getCloseOpenDiff(dataWrapper);
 		
-		ConcurrentMap<Long, ConcurrentMap<Long, Double>> SMAMatrix = 
-				new ConcurrentHashMap<Long, ConcurrentMap<Long, Double>>();
+		/*
+		 * CREATE OBJECT TO POPULATE
+		 */
+		ConcurrentMap<Long, ConcurrentMap<Long,Optional<Double>> >
+			SMAMatrix = new ConcurrentHashMap<>();
 		
 		//TODO -https://docs.oracle.com/javase/8/docs/api/java/util/stream/Collectors.html
 		dataWrapper.getRecords().keySet().parallelStream().forEach((k)-> {
@@ -74,11 +76,11 @@ public class DataWrapperSMAFunc {
 				}
 				SMAMatrix
 					.get(ts.get(currentIndex)) //get entry for timestamp
-					.put(currentIndex-startIndex, avgCurrent); //add to the map for that timestamp
+					.put(currentIndex-startIndex, Optional.of(avgCurrent)); //add to the map for that timestamp
 			}
 		}
-		dataWrapper.setsMACrossover(Optional.of(SMAMatrix));
-		if(!dataWrapper.getsMACrossover().isPresent()){
+		dataWrapper.setsMAMatrix(Optional.of(SMAMatrix));
+		if(!dataWrapper.getsMAMatrix().isPresent()){
 			System.err.println("Unknown err: addSMARangeData");
 		}
 	}
