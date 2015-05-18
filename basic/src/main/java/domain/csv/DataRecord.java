@@ -1,8 +1,8 @@
 package domain.csv;
 
 public class DataRecord {
-	public DataRecord(Long timestamp, Double open, Double high, Double low,
-			Double close, Long volume) {
+	public DataRecord(Long timestamp, Double close, Double high, Double low,
+			Double open, Long volume) {
 		super();
 		this.timestamp = timestamp;
 		this.open = open;

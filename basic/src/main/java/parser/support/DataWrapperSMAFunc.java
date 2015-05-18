@@ -7,9 +7,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.concurrent.ConcurrentUtils;
 
 import domain.csv.*;
 public class DataWrapperSMAFunc {
@@ -19,7 +24,7 @@ public class DataWrapperSMAFunc {
 			System.err.println("addSMARangeData: dataWrapper has null record parameter");
 			return;
 		}
-		final Long recordCount = dataWrapper.getRecords().keySet().stream().count();
+		long recordCount = dataWrapper.getRecords().keySet().stream().count();
 		if(recordCount < 1){
 			System.err.println("no records");
 			return;
@@ -37,43 +42,27 @@ public class DataWrapperSMAFunc {
 			SMAMatrix.put(k, new ConcurrentHashMap<>());
 		});
 		
-		Long startIndex = 0L;
+		long startIndex = 0;
 		
-		final Long maxIndex = recordCount;
+		long maxIndex = recordCount;
 		
-		final List<Long> timeStamps = dataWrapper.getRecords().keySet().parallelStream().sorted().collect(Collectors.toList());//@TODO - TODO NEED TO FACTOR IN INCONSISTANT INTERVALS
-		
-		//map of timestamps to their index (0 based), once in order
-		ConcurrentMap<Long, Long> ts = new ConcurrentHashMap<>();
-		
-		for(long l = 0L; l < timeStamps.stream().count(); l++){
-			ts.put(l, timeStamps.get((int) l));
-		}
-		
-		final ConcurrentMap<Long, Double> highLowDiff = getHighLowDiff(dataWrapper);
-		
+		List<Long> timeStamps = dataWrapper.getRecords().keySet().stream().sorted().collect(Collectors.toList());
+		ConcurrentMap<Long, Double> highLowDiff = getHighLowDiff(dataWrapper);
+		List<Double> avg = new ArrayList<>();
+
 		while(startIndex < maxIndex){
-			Long currentIndex = startIndex;
-			List<Double> avg = new ArrayList<>();
-			while(currentIndex++ < maxIndex){
-				avg.add(highLowDiff.get(ts.get(currentIndex)));
-				Double avgCurrent = null;
-				try{
-					avgCurrent = avg.parallelStream().mapToDouble(d->d).parallel().average().getAsDouble();
-				} catch(NoSuchElementException e){
-					avgCurrent = null;
-					e.printStackTrace();
-				}
-						
-					
-				if(Optional.of(avgCurrent).isPresent()==false){
-					System.err.println("Count not get average for timestamp: " + currentIndex);
-					continue;
-				}
+			long currentIndex = startIndex;
+			avg.clear();
+			while(currentIndex < maxIndex){
+				avg.add(highLowDiff.get(timeStamps.get((int)currentIndex)));
+				double avgCurrent = -1;
+				avgCurrent = (avg.stream().mapToDouble(d->d).sum()/(double)avg.size());
 				SMAMatrix
-					.get(ts.get(currentIndex)) //get entry for timestamp
+					.get(timeStamps.get((int) currentIndex)) //get entry for timestamp
 					.put(currentIndex-startIndex, Optional.of(avgCurrent)); //add to the map for that timestamp
+				currentIndex++;
 			}
+			startIndex++;
 		}
 		dataWrapper.setsMAMatrix(Optional.of(SMAMatrix));
 		if(!dataWrapper.getsMAMatrix().isPresent()){
@@ -85,6 +74,8 @@ public class DataWrapperSMAFunc {
 		//we will use this as one of our simple moving average points
 		ConcurrentMap<Long, Double> highLowDiff = new ConcurrentHashMap<>();
 		dataWrapper.getRecords().values().parallelStream().forEach((r)-> {
+			//debug
+				System.out.println("High: " + r.getHigh() + " low: " + r.getLow() + " result " + (r.getHigh()-r.getLow()));
 			if(highLowDiff.put(r.getTimestamp(),r.getHigh()-r.getLow())!=null){
 				System.err.println("err");
 			};

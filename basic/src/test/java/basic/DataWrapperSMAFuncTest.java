@@ -16,11 +16,14 @@ import parser.support.DataWrapperSMAFunc;
 
 public class DataWrapperSMAFuncTest {
 	
-	@Test
+	//@Test
 	public final void testAddSMARangeData() {
 		fail("Not yet implemented"); // TODO
 	}
 
+	/*
+	 * This test is used by manually checking against the file in excel TODO
+	 */
 	@Test
 	public final void testGetHighLowDiff() {
 		DataWrapper dataWrapper = YahooParser.getDataWrapperFn("AMZN");
@@ -34,12 +37,12 @@ public class DataWrapperSMAFuncTest {
 		});
 	}
 
-	@Test
+	//@Test
 	public final void testGetCloseOpenDiff() {
 		fail("Not yet implemented"); // TODO
 	}
 
-	@Test
+	//@Test
 	public final void testGetUpwardMovement() {
 		fail("Not yet implemented"); // TODO
 	}

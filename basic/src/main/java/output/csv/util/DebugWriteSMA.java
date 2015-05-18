@@ -19,7 +19,7 @@ public class DebugWriteSMA {
 		if(!dataWrapper.getsMAMatrix().isPresent()){
 			return true;
 		}
-		ConcurrentMap<Long, String> tsLine = dataWrapper.getRecords().keySet().stream().sorted().distinct().collect(Collectors.toConcurrentMap((p)->p,  (p)->null));
+		ConcurrentMap<Long, String> tsLine = dataWrapper.getRecords().keySet().stream().sorted().distinct().collect(Collectors.toConcurrentMap((p)->p,  (p)->"empty"));
 		ConcurrentMap<Long, ConcurrentMap<Long, Optional<Double>>>  smaMatrix = dataWrapper.getsMAMatrix().get(); 
 		
 		CSVFormat format = CSVFormat.MYSQL;
