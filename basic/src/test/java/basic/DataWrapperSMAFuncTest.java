@@ -37,8 +37,21 @@ public class DataWrapperSMAFuncTest {
 		});
 	}
 
-	//@Test
+	
+	/*
+	 * TODO - verify correct output
+	 */
+	@Test
 	public final void testGetCloseOpenDiff() {
+		DataWrapper dataWrapper = YahooParser.getDataWrapperFn("AMZN");
+		List<Long> ts = dataWrapper.getRecords().keySet().stream().sorted().collect(Collectors.toList());
+		final ConcurrentMap<Long, Double> resultMap = DataWrapperSMAFunc.getHighLowDiff(dataWrapper);
+		if(ts.size() != resultMap.keySet().size()){
+			fail("Incorrect result size");
+		}
+		resultMap.keySet().stream().sorted().distinct().forEach((k)->{
+			System.out.println("k: " + k + ", v: " + resultMap.get(k));
+		});
 		fail("Not yet implemented"); // TODO
 	}
 

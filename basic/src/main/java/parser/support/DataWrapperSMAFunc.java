@@ -1,21 +1,14 @@
 package parser.support;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.OptionalDouble;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.concurrent.ConcurrentUtils;
-
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.stream.LongStream;
 import domain.csv.*;
 public class DataWrapperSMAFunc {
 	//going to try passing by reference here - may not work
@@ -24,7 +17,7 @@ public class DataWrapperSMAFunc {
 			System.err.println("addSMARangeData: dataWrapper has null record parameter");
 			return;
 		}
-		long recordCount = dataWrapper.getRecords().keySet().stream().count();
+		int recordCount = dataWrapper.getRecords().keySet().size();
 		if(recordCount < 1){
 			System.err.println("no records");
 			return;
@@ -38,28 +31,40 @@ public class DataWrapperSMAFunc {
 			SMAMatrix = new ConcurrentHashMap<>();
 		
 		//TODO -https://docs.oracle.com/javase/8/docs/api/java/util/stream/Collectors.html
-		dataWrapper.getRecords().keySet().parallelStream().forEach((k)-> {
+		LongStream sortedTimestamps = dataWrapper.getRecords().values().parallelStream().mapToLong((v)->v.getTimestamp()).sorted();
+		Queue<Long> timeStamps = new LinkedBlockingQueue<>();
+		sortedTimestamps.forEachOrdered((k)->{
 			SMAMatrix.put(k, new ConcurrentHashMap<>());
+			timeStamps.add(k);
 		});
 		
-		long startIndex = 0;
+		int startIndex = 0;
 		
-		long maxIndex = recordCount;
+		int maxIndex = recordCount;
 		
-		List<Long> timeStamps = dataWrapper.getRecords().keySet().stream().sorted().collect(Collectors.toList());
+		Map<Integer,Long> timeStampMap = new ConcurrentHashMap<>();
+		for(int i = 0; !timeStamps.isEmpty(); i++){
+			//debug
+			System.out.println("adding: " + i + " ts: " + timeStamps.peek());
+			//end debug
+			timeStampMap.put(i, timeStamps.remove());
+		}
+		
+		
+		
 		ConcurrentMap<Long, Double> highLowDiff = getHighLowDiff(dataWrapper);
 		List<Double> avg = new ArrayList<>();
 
 		while(startIndex < maxIndex){
-			long currentIndex = startIndex;
+			int currentIndex = startIndex;
 			avg.clear();
 			while(currentIndex < maxIndex){
-				avg.add(highLowDiff.get(timeStamps.get((int)currentIndex)));
+				avg.add(highLowDiff.get(timeStampMap.get(currentIndex)));
 				double avgCurrent = -1;
 				avgCurrent = (avg.stream().mapToDouble(d->d).sum()/(double)avg.size());
 				SMAMatrix
-					.get(timeStamps.get((int) currentIndex)) //get entry for timestamp
-					.put(currentIndex-startIndex, Optional.of(avgCurrent)); //add to the map for that timestamp
+					.get(timeStampMap.get(currentIndex)) //get entry for timestamp
+					.put((long) (currentIndex-startIndex), Optional.of(avgCurrent)); //add to the map for that timestamp
 				currentIndex++;
 			}
 			startIndex++;
