@@ -45,9 +45,6 @@ public class DataWrapperSMAFunc {
 		
 		Map<Integer,Long> timeStampMap = new ConcurrentHashMap<>();
 		for(int i = 0; !timeStamps.isEmpty(); i++){
-			//debug
-			System.out.println("adding: " + i + " ts: " + timeStamps.peek());
-			//end debug
 			timeStampMap.put(i, timeStamps.remove());
 		}
 		
@@ -80,9 +77,8 @@ public class DataWrapperSMAFunc {
 		//we will use this as one of our simple moving average points
 		ConcurrentMap<Long, Double> highLowDiff = new ConcurrentHashMap<>();
 		dataWrapper.getRecords().values().parallelStream().forEach((r)-> {
-			//debug
-				System.out.println("High: " + r.getHigh() + " low: " + r.getLow() + " result " + (r.getHigh()-r.getLow()));
-			if(highLowDiff.put(r.getTimestamp(),r.getHigh()-r.getLow())!=null){
+			if(highLowDiff.put(r.getTimestamp(), (r.getHigh()-r.getLow())) 
+					!= null){
 				System.err.println("err");
 			};
 		});

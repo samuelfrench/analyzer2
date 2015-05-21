@@ -6,40 +6,41 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
-import domain.DataWrapper;
-import domain.SMAMomentumBoolMatrix;
 import domain.SMAMomentumBoolMatrix.SHIFT;
-
-
-
-
-
 public class DataWrapperTrendFunc {
 	
-	public SMAMomentumBoolMatrix getMomentum(final DataWrapper.SMAMatrix sMAMatrix){
+	public static ConcurrentMap<Long, ConcurrentMap<Long, SHIFT>> prepareEmptySMAChange(
+			final ConcurrentMap<Long, ConcurrentMap<Long, Optional<Double>>> sma){
 		
-		if(!sMAMatrix.getsMAMatrix().isPresent()){
+		if(sma==null){
 			throw new IllegalArgumentException("SMA Matrix is null, cannot get momentum");
 		}
-		ConcurrentMap<Long, ConcurrentMap<Long, Optional<Double>>> sma = sMAMatrix.getsMAMatrix().get();
-		final List<Long> tsIndex
+		final List<Long> tsList
 					= sma.keySet().stream().sorted().collect(Collectors.toList());
 		
 		
 		ConcurrentMap<Long, ConcurrentMap<Long, SHIFT>> shift = new ConcurrentHashMap<>();
 		
+		ConcurrentMap<Long,Integer> indexOfTs 
+			= new ConcurrentHashMap<>();
+		tsList.parallelStream().forEach((t)->indexOfTs.put(t, tsList.indexOf(t)+1)); //TODO MAY NOT NEED THIS +1
+		
+		
+		//tsIndex.forEach((t)->p("tIndex:" + index.get(t) + " t: " + t));
+		
 		
 		/*
 		 * We are going to populate the maps ahead of time for easier calculation
 		 */
-		tsIndex.parallelStream().forEach((t)->
+		tsList.parallelStream().forEach((t)->
 		{
 			ConcurrentMap<Long, SHIFT> emptyShift = new ConcurrentHashMap<>();
-			tsIndex.parallelStream().filter((t2)->t2<=t) //if we know it is empty
+			tsList.parallelStream().filter((t2)->indexOfTs.get(t2)<=indexOfTs.get(t).intValue()) //if we know it is empty
 				.forEach((t2)->emptyShift.put(t2, SHIFT.NA)); //place an NA to mark that
 			
 			//else if we can compute the value, go ahead and place an empty notification
-			tsIndex.parallelStream().filter((t2)->t2>t).forEach((t2)->emptyShift.put(t2, SHIFT.EMPTY));
+			tsList.parallelStream().filter((t2)->indexOfTs.get(t2)>indexOfTs.get(t).intValue())
+				.forEach((t2)->emptyShift.put(t2, SHIFT.EMPTY));
 			shift.put(t, emptyShift);
 		});
 		
@@ -47,6 +48,11 @@ public class DataWrapperTrendFunc {
 		
 		//SMAMomentumBoolMatrix calcVals = new SMAMomentumBoolMatrix();
 		
-		return null;
+		return shift;
+	}
+	
+	@SuppressWarnings("unused")
+	private static void p(final String s){
+		System.out.println(s);
 	}
 }
