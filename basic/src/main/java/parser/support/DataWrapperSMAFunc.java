@@ -9,7 +9,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.LongStream;
-import domain.csv.*;
+
+import domain.*;
 public class DataWrapperSMAFunc {
 	//going to try passing by reference here - may not work
 	public static void addSMARangeData(DataWrapper dataWrapper, final boolean printDebug){
@@ -88,7 +89,6 @@ public class DataWrapperSMAFunc {
 		return highLowDiff;
 	}
 
-	@SuppressWarnings("unused")
 	public static void getCloseOpenDiff(DataWrapper dataWrapper) {
 		ConcurrentMap<Long,Double> closeOpenDiff = new ConcurrentHashMap<>();
 		dataWrapper.getRecords().values().parallelStream().forEach((r)-> {
@@ -98,7 +98,6 @@ public class DataWrapperSMAFunc {
 		});
 	}
 
-	@SuppressWarnings("unused")
 	public static ConcurrentMap<Long, Boolean> getUpwardMovement(
 			ConcurrentMap<Long, Double> closeOpenDiff) {
 		

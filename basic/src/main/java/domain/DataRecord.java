@@ -1,4 +1,4 @@
-package domain.csv;
+package domain;
 
 public class DataRecord {
 	public DataRecord(Long timestamp, Double close, Double high, Double low,

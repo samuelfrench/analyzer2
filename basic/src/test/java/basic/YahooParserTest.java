@@ -2,18 +2,15 @@ package basic;
 
 import static org.junit.Assert.*;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
-
 import org.junit.Test;
 
-
-import domain.csv.DataRecord;
-import domain.csv.DataWrapper;
+import domain.DataRecord;
+import domain.DataWrapper;
 import parser.YahooParser;
 
 public class YahooParserTest {

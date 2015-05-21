@@ -1,9 +1,36 @@
-package domain.csv;
+package domain;
 
 import java.util.Optional;
 import java.util.concurrent.ConcurrentMap;
 
 public class DataWrapper {
+	public static class SMAMatrix {
+		/**
+		 * SMA Map
+		 * 
+		 * Outer map is Timestamp to SMA Values
+		 * Inner Map is #of previous periods being considered
+		 * 
+		 * Warning: If the # of previous periods used in the calculation is not 
+		 * 	available in the map (such as 10 periods for the first time point of the day, the value will return null)
+		 * 
+		 * 
+		 */
+		private Optional<ConcurrentMap<Long, ConcurrentMap<Long, Optional<Double>>>> sMAMatrix;
+
+		public SMAMatrix() {
+		}
+
+		public Optional<ConcurrentMap<Long, ConcurrentMap<Long, Optional<Double>>>> getsMAMatrix() {
+			return sMAMatrix;
+		}
+
+		public void setsMAMatrix(
+				Optional<ConcurrentMap<Long, ConcurrentMap<Long, Optional<Double>>>> sMAMatrix) {
+			this.sMAMatrix = sMAMatrix;
+		}
+	}
+
 	private Long createTs;
 	private Long beginTs;
 	private Long endTs;
@@ -66,24 +93,13 @@ public class DataWrapper {
 	
 	
 	
-	/**
-	 * SMA Map
-	 * 
-	 * Outer map is Timestamp to SMA Values
-	 * Inner Map is #of previous periods being considered
-	 * 
-	 * Warning: If the # of previous periods used in the calculation is not 
-	 * 	available in the map (such as 10 periods for the first time point of the day, the value will return null)
-	 * 
-	 * 
-	 */
-	private Optional<ConcurrentMap<Long, ConcurrentMap<Long, Optional<Double>>>> sMAMatrix;
-	
+	private SMAMatrix data = new SMAMatrix();
+
 	public Optional<ConcurrentMap<Long, ConcurrentMap<Long, Optional<Double>>>> getsMAMatrix() {
-		return sMAMatrix;
+		return data.getsMAMatrix();
 	}
 
 	public void setsMAMatrix(Optional<ConcurrentMap<Long, ConcurrentMap<Long, Optional<Double>>>> sMAMatrix) {
-		this.sMAMatrix = sMAMatrix;
+		this.data.setsMAMatrix(sMAMatrix);
 	}
 }

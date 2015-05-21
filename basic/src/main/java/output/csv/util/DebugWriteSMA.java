@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
-import domain.csv.DataWrapper;
+import domain.DataWrapper;
 
 public class DebugWriteSMA {
 	//true = error

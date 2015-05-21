@@ -10,7 +10,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import domain.csv.DataWrapper;
+import domain.DataWrapper;
 import parser.YahooParser;
 import parser.support.DataWrapperSMAFunc;
 
