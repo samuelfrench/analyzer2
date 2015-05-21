@@ -18,8 +18,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 
-import domain.csv.DataRecord;
-import domain.csv.DataWrapper;
+import domain.DataRecord;
+import domain.DataWrapper;
 
 public class YahooParser implements QueryService {
 

@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import output.csv.util.DebugWriteSMA;
-import domain.csv.DataWrapper;
+import domain.DataWrapper;
 import parser.YahooParser;
 import parser.support.DataWrapperSMAFunc;
 

@@ -3,7 +3,7 @@ package parser;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
-import domain.csv.DataWrapper;
+import domain.DataWrapper;
 
 public interface QueryService {
 	public DataWrapper getDataWrapper(final String tickerSymbol);
