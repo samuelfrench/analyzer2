@@ -1,5 +1,6 @@
 package parser.support;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -8,6 +9,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
+import domain.DataWrapper;
 import domain.SMAMomentumBoolMatrix;
 import domain.SMAMomentumBoolMatrix.SHIFT;
 public class DataWrapperTrendFunc {
@@ -18,15 +20,12 @@ public class DataWrapperTrendFunc {
 		if(sma==null){
 			throw new IllegalArgumentException("SMA Matrix is null, cannot get momentum");
 		}
-		final List<Long> tsList = getListOfTimestamps(sma);
-		
-		
+		List<Long> tsList;
+		ConcurrentMap<Long,Integer> indexOfTs;
+		tsList = getListOfTimestamps(sma);
+		indexOfTs = createTsMap(tsList);
 		ConcurrentMap<Long, ConcurrentMap<Long, SHIFT>> shift = new ConcurrentHashMap<>();
-		
-		ConcurrentMap<Long,Integer> indexOfTs 
-			= new ConcurrentHashMap<>();
-		tsList.parallelStream().forEach((t)->indexOfTs.put(t, tsList.indexOf(t)+1)); //TODO MAY NOT NEED THIS +1
-		
+
 		
 		//tsIndex.forEach((t)->p("tIndex:" + index.get(t) + " t: " + t));
 		
@@ -45,14 +44,54 @@ public class DataWrapperTrendFunc {
 				.forEach((t2)->emptyShift.put(t2, SHIFT.EMPTY));
 			shift.put(t, emptyShift);
 		});
-		
-		
-		
-		//SMAMomentumBoolMatrix calcVals = new SMAMomentumBoolMatrix();
-		
+				
 		return shift;
 	}
 
+	@Deprecated
+	private static ConcurrentMap<Long, Integer> createTsIndexMap(List<Long> tsList) {
+		ConcurrentMap<Long, Integer> indexOfTs;
+		indexOfTs
+			= new ConcurrentHashMap<>();
+		tsList.parallelStream().forEach((t)->indexOfTs.put(t, tsList.indexOf(t)+1)); //TODO MAY NOT NEED THIS +1
+		return indexOfTs;
+	}
+	
+	@SuppressWarnings("unused")
+	private static ConcurrentMap<Integer,Long> createIndexTsMap(List<Long> tsList){
+		ConcurrentMap<Integer, Long> indexToTs;
+		indexToTs
+			= new ConcurrentHashMap<>();
+		tsList.parallelStream().forEach((t)->indexToTs.put(tsList.indexOf(t),t)); //TODO MAY NOT NEED THIS +1
+		return indexToTs;
+	}
+	
+
+	//SMAMomentumBoolMatrix calcVals = new SMAMomentumBoolMatrix();
+
+	public static SMAMomentumBoolMatrix getMomentumMatrix(DataWrapper wrapper){
+		if(!wrapper.getsMAMatrix().isPresent()){
+			throw new IllegalArgumentException("Populate SMA Matrix before requesting getMomentumMatrix");
+		}
+		
+		ConcurrentMap<Long, ConcurrentMap<Long, Optional<Double>>> sma = wrapper.getsMAMatrix().get();
+		ConcurrentMap<Long, ConcurrentMap<Long, SHIFT>> shiftMap = prepareEmptySMAChange(sma);
+		return null;
+		/*
+		 * use create ts index map to iterate through every timestamp, in parallel for every period
+		 */
+		
+		
+		
+		
+		/*
+		periodList.parallelStream().forEach((p)->{
+			
+		});
+		*/
+		
+		
+	}
 
 	public static List<Long> getListOfTimestamps(
 			final ConcurrentMap<Long, ConcurrentMap<Long, Optional<Double>>> sma) {
@@ -66,10 +105,8 @@ public class DataWrapperTrendFunc {
 			final ConcurrentMap<Long, ConcurrentMap<Long, Optional<Double>>> sma){
 		throw new Exception("Not implemented.");		
 	} */
-	
-	//TODO
-	@Deprecated//??????? not sure if needed
-	public static 		ConcurrentLinkedDeque<Long> getPeriodsToCheck(final ConcurrentMap<Long, ConcurrentMap<Long, Optional<Double>>> sma){
+	@Deprecated
+	public static ConcurrentLinkedDeque<Long> getPeriodsToCheck(final ConcurrentMap<Long, ConcurrentMap<Long, Optional<Double>>> sma){
 		ConcurrentLinkedDeque<Long> periodsToCheck = new ConcurrentLinkedDeque<>();
 		final long maxPeriod = sma.keySet().stream().count();
 		long periodToAdd = 0;
@@ -78,6 +115,19 @@ public class DataWrapperTrendFunc {
 			periodToAdd++;
 		}
 		return periodsToCheck;
+	}
+	
+	public static List<Long> getPeriodList(final ConcurrentMap<Long, ConcurrentMap<Long, Optional<Double>>> sma){
+		List<Long> periodList = new ArrayList<>();
+		final long maxPeriod = sma.keySet().stream().count();
+		long periodToAdd = 0;
+		while(periodToAdd < maxPeriod){
+			periodList.add(periodToAdd);
+			periodToAdd++;
+		}
+		
+		return periodList;
+		
 	}
 	
 	@SuppressWarnings("unused")
