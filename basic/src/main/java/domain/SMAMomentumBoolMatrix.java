@@ -14,16 +14,30 @@ public class SMAMomentumBoolMatrix {
 	
 	ConcurrentMap<Long, ConcurrentMap<Long, SHIFT>> shift; //within current period
 	
-	
-	public static enum SIGNAL {YES,NO}; //yes = shift is in opposite direction from previous interval
+	public static enum SIGNAL {YES,NO,NA}; //yes = shift is in opposite direction from previous interval
 	//no - trend has not reversed
 	
 	ConcurrentMap<Long, ConcurrentMap<Long, SIGNAL>> signal;
+	
+	
+	
+	
+	
+	//getters and setter
 	public synchronized ConcurrentMap<Long, ConcurrentMap<Long, SIGNAL>> getSignal() {
 		return signal;
 	}
 	public synchronized void setSignal(
 			ConcurrentMap<Long, ConcurrentMap<Long, SIGNAL>> signal) {
 		this.signal = signal;
+	}
+	
+
+	
+	public ConcurrentMap<Long, ConcurrentMap<Long, SHIFT>> getShift() {
+		return shift;
+	}
+	public void setShift(ConcurrentMap<Long, ConcurrentMap<Long, SHIFT>> shift) {
+		this.shift = shift;
 	}
 }
