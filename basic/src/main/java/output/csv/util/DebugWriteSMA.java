@@ -10,7 +10,10 @@ import java.util.stream.Collectors;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
+import parser.support.DataWrapperTrendFunc;
 import domain.DataWrapper;
+import domain.SMAMomentumBoolMatrix;
+import domain.SMAMomentumBoolMatrix.SHIFT;
 
 public class DebugWriteSMA {
 	
@@ -26,7 +29,72 @@ public class DebugWriteSMA {
 	
 	
 	
-	
+	public static boolean writeSMAAndShiftMatrixToFile(final DataWrapper dataWrapper, final SMAMomentumBoolMatrix matrix,final String fileName){
+		
+		List<Long> timeStamps = DataWrapperTrendFunc.getListOfTimestamps(dataWrapper.getsMAMatrix().get());
+		ConcurrentMap<Long, ConcurrentMap<Long,Optional<Double>>> rawSMA = dataWrapper.getsMAMatrix().get();
+		ConcurrentMap<Long, ConcurrentMap<Long, SHIFT>> shiftMap = DataWrapperTrendFunc.getMomentumMatrix(dataWrapper).getShift();
+		//prepare file io
+
+		CSVFormat format = CSVFormat.MYSQL;
+		FileWriter fileWriter = null;
+		CSVPrinter writer;
+		try{
+			fileWriter = new FileWriter(fileName);
+			writer = new CSVPrinter(fileWriter, format);
+		} catch (IOException e){
+			e.printStackTrace();
+			return true;
+		}
+		try {
+			writer.println();
+			for(Long t: timeStamps){
+				List<Long> periods = rawSMA.get(t).keySet().stream().sorted().collect(Collectors.toList());
+				writer.print("Timestamp: " + t.toString() + ",");
+				for(Long p: periods){
+					writer.print("p: " + p + ", val: " + rawSMA.get(t).get(p).get());
+				}
+				writer.println();
+			}
+		}catch (IOException e) {
+			e.printStackTrace();
+			try {
+				writer.close();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			return true;
+		}
+		
+		try {
+			writer.println();
+			for(Long t: timeStamps){
+				List<Long> periods = rawSMA.get(t).keySet().stream().sorted().collect(Collectors.toList());
+				writer.print("Timestamp: " + t.toString() + ",");
+				for(Long p: periods){
+					writer.print("p: " + p + ", val: " + shiftMap.get(t).get(p).toString());
+				}
+				writer.println();
+			}
+		}catch (IOException e) {
+			e.printStackTrace();
+			try {
+				writer.close();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			return true;
+		}
+		
+		try {
+			writer.flush();
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
 	
 	
 	//true = error

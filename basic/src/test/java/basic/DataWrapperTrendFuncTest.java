@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 
+import output.csv.util.DebugWriteSMA;
 import parser.YahooParser;
 import parser.support.DataWrapperSMAFunc;
 import parser.support.DataWrapperTrendFunc;
@@ -34,7 +35,6 @@ public class DataWrapperTrendFuncTest {
 		final ConcurrentMap<Long, ConcurrentMap<Long, Optional<Double>>> testSMACopy = testSMA;
 		ConcurrentMap<Long, ConcurrentMap<Long, SHIFT>> emptyShiftMap = DataWrapperTrendFunc.prepareEmptySMAChange(testSMACopy);
 		List<Long> timeStamps = testSMACopy.keySet().stream().sorted().collect(Collectors.toList());
-		
 		/*
 		long lastVal = -1;
 		for(Long l: timeStamps){
