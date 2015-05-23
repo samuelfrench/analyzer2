@@ -14,24 +14,28 @@ import parser.YahooParser;
 import parser.support.DataWrapperSMAFunc;
 import parser.support.DataWrapperTrendFunc;
 import domain.DataWrapper;
+import domain.SMAMomentumBoolMatrix;
 import domain.SMAMomentumBoolMatrix.SHIFT;
 
 public class DataWrapperTrendFuncTest {
 
 	private ConcurrentMap<Long, ConcurrentMap<Long, Optional<Double>>> testSMA;
-	
+	private DataWrapper d;
 	@Before
 	public void setUp() throws Exception {
 		DataWrapper d = YahooParser.getDataWrapperFn("AMZN");
-		DataWrapperSMAFunc.addSMARangeData(d, true);
-		testSMA = d.getsMAMatrix().get();
+		this.d = d;
+		DataWrapperSMAFunc.addSMARangeData(this.d, true);
+		testSMA = this.d.getsMAMatrix().get();
 	}
 
 	@Test
 	public final void testEmptyInit() {
 		final ConcurrentMap<Long, ConcurrentMap<Long, Optional<Double>>> testSMACopy = testSMA;
-		final ConcurrentMap<Long, ConcurrentMap<Long, SHIFT>> emptyShiftMap = DataWrapperTrendFunc.prepareEmptySMAChange(testSMACopy);
+		ConcurrentMap<Long, ConcurrentMap<Long, SHIFT>> emptyShiftMap = DataWrapperTrendFunc.prepareEmptySMAChange(testSMACopy);
 		List<Long> timeStamps = testSMACopy.keySet().stream().sorted().collect(Collectors.toList());
+		
+		/*
 		long lastVal = -1;
 		for(Long l: timeStamps){
 			getNACount(emptyShiftMap, l);
@@ -50,14 +54,33 @@ public class DataWrapperTrendFuncTest {
 				}
 			}
 			lastVal = l.longValue();
-		}
+		}*/
+		 
 		
+		//these two following tests appear to work - but it might be smart to write to a csv and check manually - the trend continuation bool has not yet been tested
 		
 		for(Long t: timeStamps){
 			System.out.print("Timestamp: " + t);
 			for(Long p: testSMACopy.get(t).keySet().stream().sorted().collect(Collectors.toList())){
 				try{
-					System.out.print(", prd:" + p + " - " + testSMACopy.get(t).get(p).toString() + ";");	
+					System.out.print(", prd:" + p + " - " + emptyShiftMap.get(t).get(p).toString() + ";");	
+				} catch (NullPointerException e){
+				//	e.printStackTrace();
+					System.out.print(", prd:" + p + " - NULL  ;");	
+
+				}
+			}
+			System.out.println();
+		}
+		
+		
+		
+		SMAMomentumBoolMatrix matrix = DataWrapperTrendFunc.getMomentumMatrix(d);
+		for(Long t: timeStamps){
+			System.out.print("Timestamp: " + t);
+			for(Long p: testSMACopy.get(t).keySet().stream().sorted().collect(Collectors.toList())){
+				try{
+					System.out.print(", prd:" + p + " - " + matrix.getShift().get(t).get(p).toString() + ";");	
 				} catch (NullPointerException e){
 				//	e.printStackTrace();
 					System.out.print(", prd:" + p + " - NULL  ;");	
@@ -68,6 +91,7 @@ public class DataWrapperTrendFuncTest {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private long getNACount(
 			final ConcurrentMap<Long, ConcurrentMap<Long, SHIFT>> emptyShiftMap,
 			Long l) {
