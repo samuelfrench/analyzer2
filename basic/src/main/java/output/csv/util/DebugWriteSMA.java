@@ -13,6 +13,22 @@ import org.apache.commons.csv.CSVPrinter;
 import domain.DataWrapper;
 
 public class DebugWriteSMA {
+	
+	
+	/*
+	 * TODO - 
+	 * 
+	 * Need to write a very similar method to write the shift directions to a file to verify
+	 */
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	//true = error
 	//false = success
 	public static boolean writeSMAMatrixToFile(final DataWrapper dataWrapper, final String fileName){
