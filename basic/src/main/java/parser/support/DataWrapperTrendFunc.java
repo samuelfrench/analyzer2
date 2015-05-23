@@ -51,10 +51,7 @@ public class DataWrapperTrendFunc {
 			Optional<Double> ts_0 = Optional.of((double)-1);
 			Optional<Double> ts_1 = Optional.of((double)-1);
 			for (Long l : tsList) {
-				if (ts_1.isPresent()==false||ts_1.equals((double)-1)) { // this is the first pass, continue
-					ts_1 = sma.get().get(l).get(new Long(p.longValue()));
-					continue;
-				}
+				
 				// current time stamp
 				
 				//debug
@@ -65,6 +62,10 @@ public class DataWrapperTrendFunc {
 				ts_0 = sma.get().get(l).get(p);
 				if(ts_0==null){
 					System.err.println("err");
+					continue;
+				}
+				if (ts_1.isPresent()==false||ts_1.equals((double)-1)) { // this is the first pass, continue
+					ts_1 = sma.get().get(l).get(new Long(p.longValue()));
 					continue;
 				}
 				// assuming no error
