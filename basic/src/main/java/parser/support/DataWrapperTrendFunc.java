@@ -16,41 +16,6 @@ import domain.SMAMomentumBoolMatrix.SIGNAL;
 
 public class DataWrapperTrendFunc {
 
-	public static ConcurrentMap<Long, ConcurrentMap<Long, SHIFT>> prepareEmptySMAChange(final ConcurrentMap<Long, ConcurrentMap<Long, Optional<Double>>> sma) {
-
-		if (sma == null) {
-			throw new IllegalArgumentException("SMA Matrix is null, cannot get momentum");
-		}
-		List<Long> tsList;
-		ConcurrentMap<Long, Integer> indexOfTs;
-		tsList = getListOfTimestamps(sma);
-		indexOfTs = lookupByTimeStamp(tsList);
-		ConcurrentMap<Long, ConcurrentMap<Long, SHIFT>> shift = new ConcurrentHashMap<>();
-
-		// tsIndex.forEach((t)->p("tIndex:" + index.get(t) + " t: " + t));
-
-		/*
-		 * We are going to populate the maps ahead of time for easier
-		 * calculation
-		 */
-		tsList.parallelStream().forEach((t) -> {
-			ConcurrentMap<Long, SHIFT> emptyShift = new ConcurrentHashMap<>();
-			tsList.parallelStream().filter((t2) -> indexOfTs.get(t2) <= indexOfTs.get(t).intValue()) // if
-			// we
-			// know
-			// it
-			// is empty
-			.forEach((t2) -> emptyShift.put(t2, SHIFT.NA));
-
-			// else if we can compute the value, go ahead and
-			// place an empty notification
-			tsList.parallelStream().filter((t2) -> indexOfTs.get(t2) > indexOfTs.get(t).intValue()).forEach((t2) -> emptyShift.put(t2, SHIFT.EMPTY));
-			shift.put(t, emptyShift);
-		});
-
-		return shift;
-	}
-
 	private static ConcurrentMap<Long, Integer> lookupByTimeStamp(List<Long> tsList) {
 		ConcurrentMap<Long, Integer> lookupByTimeStamp;
 		lookupByTimeStamp = new ConcurrentHashMap<>();
@@ -153,6 +118,21 @@ public class DataWrapperTrendFunc {
 		return returnValue;
 	}
 
+	public static ConcurrentMap<Long, ConcurrentMap<Long, SHIFT>> prepareEmptySMAChange(
+			ConcurrentMap<Long, ConcurrentMap<Long, Optional<Double>>> sma) {
+		ConcurrentMap<Long, ConcurrentMap<Long,SHIFT>> emptyMap = new ConcurrentHashMap<>();
+		sma.keySet().stream().forEach((k)->{
+			emptyMap.put(k, new ConcurrentHashMap<Long, SHIFT>());
+		});
+		sma.keySet().stream().forEach((k)->
+		{
+			ConcurrentMap<Long, SHIFT> innerShift = new ConcurrentHashMap<>();
+			sma.get(k).keySet().stream().forEach((p)->innerShift.put(p, SHIFT.INIT));
+			emptyMap.put(k, innerShift);
+		});
+		return emptyMap;
+	}
+
 	private static void p(String string) {
 		System.out.println(string);		
 	}
@@ -185,4 +165,46 @@ public class DataWrapperTrendFunc {
 		}
 		return periodList;
 	}
+	
+	
+	
+	/*
+	 * JUNK
+	 */
+	/*
+	public static ConcurrentMap<Long, ConcurrentMap<Long, SHIFT>> prepareEmptySMAChange(final ConcurrentMap<Long, ConcurrentMap<Long, Optional<Double>>> sma) {
+
+		if (sma == null) {
+			throw new IllegalArgumentException("SMA Matrix is null, cannot get momentum");
+		}
+		List<Long> tsList;
+		ConcurrentMap<Long, Integer> indexOfTs;
+		tsList = getListOfTimestamps(sma);
+		indexOfTs = lookupByTimeStamp(tsList);
+		ConcurrentMap<Long, ConcurrentMap<Long, SHIFT>> shift = new ConcurrentHashMap<>();
+
+		// tsIndex.forEach((t)->p("tIndex:" + index.get(t) + " t: " + t));
+
+		//
+		 //We are going to populate the maps ahead of time for easier
+		 //calculation
+		 //
+		tsList.parallelStream().forEach((t) -> {
+			ConcurrentMap<Long, SHIFT> emptyShift = new ConcurrentHashMap<>();
+			tsList.parallelStream().filter((t2) -> indexOfTs.get(t2) <= indexOfTs.get(t).intValue()) // if
+			// we
+			// know
+			// it
+			// is empty
+			.forEach((t2) -> emptyShift.put(t2, SHIFT.NA));
+
+			// else if we can compute the value, go ahead and
+			// place an empty notification
+			tsList.parallelStream().filter((t2) -> indexOfTs.get(t2) > indexOfTs.get(t).intValue()).forEach((t2) -> emptyShift.put(t2, SHIFT.EMPTY));
+			shift.put(t, emptyShift);
+		});
+
+		return shift;
+	}
+*/
 }

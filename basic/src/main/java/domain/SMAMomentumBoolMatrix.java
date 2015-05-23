@@ -10,7 +10,7 @@ public class SMAMomentumBoolMatrix {
 	 *
 	 *NA means not applicable, empty means to be filled
 	 */
-	public static enum SHIFT {UP, DOWN, FLAT, NA, EMPTY};
+	public static enum SHIFT {UP, DOWN, FLAT, NA, EMPTY, INIT};
 	
 	ConcurrentMap<Long, ConcurrentMap<Long, SHIFT>> shift; //within current period
 	

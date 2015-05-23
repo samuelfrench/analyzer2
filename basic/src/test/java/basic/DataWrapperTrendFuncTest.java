@@ -51,12 +51,27 @@ public class DataWrapperTrendFuncTest {
 			}
 			lastVal = l.longValue();
 		}
+		
+		
+		for(Long t: timeStamps){
+			System.out.print("Timestamp: " + t);
+			for(Long p: testSMACopy.get(t).keySet().stream().sorted().collect(Collectors.toList())){
+				try{
+					System.out.print(", prd:" + p + " - " + testSMACopy.get(t).get(p).toString() + ";");	
+				} catch (NullPointerException e){
+				//	e.printStackTrace();
+					System.out.print(", prd:" + p + " - NULL  ;");	
+
+				}
+			}
+			System.out.println();
+		}
 	}
 
 	private long getNACount(
 			final ConcurrentMap<Long, ConcurrentMap<Long, SHIFT>> emptyShiftMap,
 			Long l) {
-		return emptyShiftMap.get(l).values().parallelStream().filter((v)->v==SHIFT.NA).count();
+		return emptyShiftMap.get(l).values().parallelStream().filter((v)->v.equals(SHIFT.NA)).count();
 	}
 
 }
