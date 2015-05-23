@@ -5,7 +5,9 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import output.csv.util.DebugWriteSMA;
+import db.Connection;
 import domain.DataWrapper;
+import domain.SMAMomentumBoolMatrix;
 import parser.YahooParser;
 import parser.support.DataWrapperSMAFunc;
 import parser.support.DataWrapperTrendFunc;
@@ -26,6 +28,18 @@ public class Debug {
 			DataWrapperSMAFunc.addSMARangeData(d, true);
 		//	assertFalse(DebugWriteSMA.writeSMAMatrixToFile(d, "test3223last.csv"));
 			//DataWrapperTrendFunc.getMomentum(d.getsMAMatrix().get());
+		}
+		
+		@Test
+		public final void testDB(){
+			DataWrapper d = YahooParser.getDataWrapperFn("AMZN");
+			DataWrapperSMAFunc.addSMARangeData(d, true);
+			SMAMomentumBoolMatrix data = DataWrapperTrendFunc.getMomentumMatrix(d);
+			
+			Connection.insertTrendReversals(data);
+			Connection.getTrendReversals();
+			//Connection.
+			//Connection.dbTestOp();
 		}
 
 }

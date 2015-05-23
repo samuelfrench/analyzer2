@@ -81,29 +81,39 @@ public class DataWrapperTrendFunc {
 
 		// level 1: split off periods
 		final List<Long> periodsToEvaluate = getPeriodList(sma.get());
-		periodsToEvaluate.parallelStream().forEach((p) -> {
-			Optional<Double> ts_0 = null;
-			Optional<Double> ts_1 = null;
+		//periodsToEvaluate.parallelStream().forEach((p) -> {
+		for(Long p : periodsToEvaluate){
+			Optional<Double> ts_0 = Optional.of((double)-1);
+			Optional<Double> ts_1 = Optional.of((double)-1);
 			for (Long l : tsList) {
-				if (!ts_1.isPresent()) { // this is the first pass, continue
-					ts_1 = sma.get().get(l).get(p.longValue());
+				if (ts_1.isPresent()==false||ts_1.equals((double)-1)) { // this is the first pass, continue
+					ts_1 = sma.get().get(l).get(new Long(p.longValue()));
 					continue;
 				}
 				// current time stamp
-				ts_0 = sma.get().get(l).get(p.longValue());
-
+				
+				//debug
+				//p(sma.get().get(l).get(new Long(p.longValue())).get().toString());
+				//end debug
+				
+				
+				ts_0 = sma.get().get(l).get(p);
+				if(ts_0==null){
+					System.err.println("err");
+					continue;
+				}
 				// assuming no error
 				if (ts_0.isPresent()) {
 					// are the two timestamps sma equal?
 					if (ts_0.get().equals(ts_1.get())) {
-						shiftMap.get(l).put(p.longValue(), SHIFT.FLAT);
+						shiftMap.get(l).put(new Long(p.longValue()), SHIFT.FLAT);
 					} else { // if not - determine greater of the pair
 						double max = Math.max(ts_0.get().doubleValue(), ts_1.get().doubleValue());
 						if (max == ts_0.get().doubleValue()) {
-							shiftMap.get(l).put(p.longValue(), SHIFT.UP);
+							shiftMap.get(l).put(new Long(p.longValue()), SHIFT.UP);
 						}
 						if (max == ts_1.get().doubleValue()) {
-							shiftMap.get(l).put(p.longValue(), SHIFT.DOWN);
+							shiftMap.get(l).put(new Long(p.longValue()), SHIFT.DOWN);
 						}
 					}
 				} else {
@@ -111,7 +121,7 @@ public class DataWrapperTrendFunc {
 				}
 				ts_1 = ts_0;
 			}
-		});
+		}
 
 		// now we see if each shift is a continuation of previous trend
 		ConcurrentMap<Long, ConcurrentMap<Long, SIGNAL>> signal = new ConcurrentHashMap<>();
@@ -141,6 +151,10 @@ public class DataWrapperTrendFunc {
 		returnValue.setSignal(signal);
 
 		return returnValue;
+	}
+
+	private static void p(String string) {
+		System.out.println(string);		
 	}
 
 	public static List<Long> getListOfTimestamps(final ConcurrentMap<Long, ConcurrentMap<Long, Optional<Double>>> sma) {
