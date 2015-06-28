@@ -23,7 +23,6 @@ public class DataWrapperTrendFunc {
 		return lookupByTimeStamp;
 	}
 
-	@SuppressWarnings("unused")
 	private static ConcurrentMap<Integer, Long> lookupByIndex(List<Long> tsList) {
 		ConcurrentMap<Integer, Long> lookupByIndex;
 		lookupByIndex = new ConcurrentHashMap<>();
@@ -132,10 +131,6 @@ public class DataWrapperTrendFunc {
 			emptyMap.put(k, innerShift);
 		});
 		return emptyMap;
-	}
-
-	private static void p(String string) {
-		System.out.println(string);		
 	}
 
 	public static List<Long> getListOfTimestamps(final ConcurrentMap<Long, ConcurrentMap<Long, Optional<Double>>> sma) {

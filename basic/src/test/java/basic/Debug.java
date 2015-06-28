@@ -35,7 +35,9 @@ public class Debug {
 			DataWrapper d = YahooParser.getDataWrapperFn("AMZN");
 			DataWrapperSMAFunc.addSMARangeData(d, true);
 			SMAMomentumBoolMatrix data = DataWrapperTrendFunc.getMomentumMatrix(d);
-			
+			if(data==null){
+				fail("could not get momentum matrix");
+			}
 			Connection.insertTrendReversals(data);
 			Connection.getTrendReversals();
 			//Connection.

@@ -18,7 +18,7 @@ public class DebugWriteSMATest {
 		DataWrapper d = YahooParser.getDataWrapperFn("AMZN");
 		DataWrapperSMAFunc.addSMARangeData(d, true);
 		SMAMomentumBoolMatrix data = DataWrapperTrendFunc.getMomentumMatrix(d);
-		DebugWriteSMA.writeSMAAndShiftMatrixToFile(d, data, "debug0.csv");
+		DebugWriteSMA.writeSMAAndShiftMatrixToFile(d, data, "debug1.csv");
 	}
 
 	//@Test
